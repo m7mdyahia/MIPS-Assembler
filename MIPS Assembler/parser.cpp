@@ -1,42 +1,31 @@
-#include "Instruction.h"
-#include <vector>
-
+#include "sourcefile.h"
 
 int main()
 {
 	char outputmode;
-	cout << "MIPS Assembler\n"
-		"output modes:\n"
-		"1:Binary 8 bits per line\n"
-		"2:Hexadicimal 8 bits per line\n"
-		"3:Binary 32 bits per line\n"
-		"4:Hexadicimal 32 bits per line\n";
+	string src_file, obj_file;
+	cout << "MIPS Assembler\n";
+	/*
+	cout << "Enter the source file name";
+	cin >> src_file;
+	cout << "Enter the object file name";
+	cin >> obj_file;
+	SourceFile src(src_file, obj_file);
+	*/
+	SourceFile src("assembly.asm", "bin.txt");
 
-
-	vector <Instruction*> instr_list; //list contains all programm structure
-	//list<Instruction*>::iterator pos;
-
-	ifstream source("assembly.asm");
-	ofstream object("bin.txt");
-
-	cin >> outputmode;
-	string str;
 	
-	while (getline(source, str))
-	{
-		instr_list.push_back(Instruction::make_instr(str)); //calling the factory method
+		cout << "output modes:\n"
+		<< "0:Binary 8 bits per line\n"
+		<< "1:Hexadicimal 8 bits per line\n"
+		<< "2:Binary 32 bits per line\n"
+		<< "3:Hexadicimal 32 bits per line\n";
 		
-	}
 
-
-	//Assembling each instruction
-	for (unsigned int i = 0;i<instr_list.size();i++)
-	{
+		do
+		{
+			cin >> outputmode;
+		} while (!(src.save_output(outputmode)));
+		
 	
-		object << instr_list[i]->str_hex();
-		
-	}
-
-
-	return 0;
 }

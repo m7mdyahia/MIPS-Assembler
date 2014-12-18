@@ -1,6 +1,8 @@
 #include "Instruction.h"
+#include "sourcefile.h"
 
 // Testing constructors
+#ifdef _DEBUG
 Instruction::Instruction(unsigned long l)
 {
 	bitset<32> binstr(instr_value);
@@ -27,13 +29,15 @@ Instruction::Instruction(const string& str)
 Instruction::Instruction(int opcode_int_par, const string & instr_str_par) :instr_str(instr_str_par), op(opcode_int_par)
 {
 }
-
-//output methods
 Instruction::Instruction()
 {
 	op = 0;
 
 }
+#endif
+
+//output methods
+
 //newline terminated 8 bits string
 string Instruction::str_bin() const
 {
@@ -103,19 +107,20 @@ ostream & operator<<(ostream & os, const Instruction & instr)
 }
 
 //Factory
-Instruction* Instruction::make_instr(const string & str)
+ Instruction* Instruction::make_instr(const string & str,  SourceFile * caller)
 {
 	istringstream ss(str);
 	string opcode_str;
+	
 	ss >> opcode_str;
 	int opcode_int = op_map.at(opcode_str);
 	
 	try
 	{
 	
-		if (opcode_int == 0) return new RInstr(opcode_str, str);
-		else if (opcode_int == 0x2 || opcode_int == 0x3) return new JInstr(opcode_int, str);
-		else return new IInstr(opcode_int, str);
+		if (opcode_int == 0) return new RInstr(opcode_str, str,caller);
+		else if (opcode_int == 0x2 || opcode_int == 0x3) return new JInstr(opcode_int, str,caller);
+		else return new IInstr(opcode_int, str,caller);
 	}
 	catch (out_of_range& e)
 	{
@@ -129,14 +134,16 @@ Instruction* Instruction::make_instr(const string & str)
 
 //Derived classes' construvtors
 
-RInstr::RInstr(const string & fn_str_par, const string & instr_str_par)
+RInstr::RInstr(const string & fn_str_par, const string & instr_str_par, SourceFile * caller)
 {
 	op = 0;
+	resolved = true;
 	unsigned int rs=0, rt=0, rd=0, shamt=0, fn=0;
 	string opcode_, r1, r2, r3;
 
 	stringstream ss(instr_str_par);
-	ss >> opcode_;
+	//ss >> opcode_;
+	ss.ignore(numeric_limits<streamsize>::max(), ' ');
 	try
 	{
 		fn = fn_map.at(fn_str_par);
@@ -193,18 +200,114 @@ RInstr::RInstr(const string & fn_str_par, const string & instr_str_par)
 
 
 	instr_value = (op << 26) | (rs << 21) | (rt << 16) | (rd << 11) | (shamt << 6) | fn;
+	
 }
 
-IInstr::IInstr(int opcode_int_par, const string & instr_str_par)
+IInstr::IInstr(int opcode_int_par, const string & instr_str_par,  SourceFile * caller)
 {
+	op = opcode_int_par;
+	unsigned int rs = 0, rt = 0;
+	signed int c = 0;
+	string  r1, r2, sc;
+	stringstream ss(instr_str_par);
+	//ss >> opcode_;
+	ss.ignore(numeric_limits<streamsize>::max(),' ');
+
+	switch (opcode_int_par)
+	{
+		//2 registers and constant
+	case 0x8:
+	case 0x9:
+	case 0xc:
+	case 0xd:
+	case 0xa:
+	case 0xb:
+	{
+
+		getline(ss, r1, ',');
+		getline(ss, r2, ',');
+		getline(ss, sc);
+
+		rs = register_number(r2); rt = register_number(r1); c = stoi(sc,0,0);
+		resolved = true;
+		break;
+	}
+	case 0xf://lui
+	{
+		getline(ss, r1, ',');
+		getline(ss, sc);
+		rs = 0; rt = register_number(r1);  c = stoi(sc, 0, 0);
+		resolved = true;
+		break;
+	}
+		//load store lw r1,c(r2)
+	case 0x24:
+	case 0x25:
+	case 0x23:
+	case 0x2b:
+	case 0x28:
+	case 0x29:
+	{
+		getline(ss, r1, ',');
+		getline(ss, sc, '(');
+		getline(ss, r2, ')');
+		rs = register_number(r2); rt = register_number(r1); c = stoi(sc, 0, 0);
+		resolved = true;
+		break;
+	}
+		//beq r1,r2,label
+	case 0x4:
+	case 0x5:
+	{
+		getline(ss, r1, ',');
+		getline(ss, r2, ',');
+		getline(ss, sc);
+		
+		size_t current_pc, next_pc;
+		if (caller->label_address(sc, current_pc, next_pc))
+		{
+			
+			rs = register_number(r1); rt = register_number(r2); c = next_pc - (current_pc + 1);
+			resolved = true;
+		}
+		else
+		{
+			resolved = false;
+		}
+		break;
+	}
+	default:
+	
+		break;
+	}
 
 
+	
+	instr_value = (op << 26) | (rs << 21) | (rt << 16) | (c & 0x0000FFFF) ;
 }
 
-JInstr::JInstr(int opcode_int_par, const string & instr_str_par)
+JInstr::JInstr(int opcode_int_par, const string & instr_str_par,  SourceFile * caller)
 {
+	signed int address = 0;
+	string  label_str;
+	stringstream ss(instr_str_par);
+	ss.ignore(numeric_limits<streamsize>::max(), ' ');
+	getline(ss, label_str);
+	
+	size_t current_pc, next_pc;
+	if (caller->label_address(label_str, current_pc, next_pc))
+	{
+		address = next_pc;
+		instr_value = (op << 26) | (address & 0x03FFFFFF);
+		resolved = true;
+	}
+	else
+	{
+		resolved = false;
+		instr_value = 0;
+	}
 
-
+	
 }
 
 //intializing op code map Using c++11 
@@ -245,7 +348,7 @@ const map<string, unsigned char > Instruction::op_map{
 unsigned char Instruction::register_number(string& str)
 {
 
-//that's not accurat : will neglect $$
+
 	size_t first = str.find_first_not_of(" \t");
 	size_t last = str.find_last_not_of(" \t");
 	str = str.substr(first, (last - first + 1));
@@ -325,6 +428,7 @@ const map<string,unsigned char > Instruction::r_map{
 	{ "ra", 30 },
 	{ "31", 30 }
 };
+
 
 const map<string, unsigned char > Instruction::fn_map{
 	{ "add", 0x20 },

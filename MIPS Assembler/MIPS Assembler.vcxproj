@@ -54,6 +54,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\Program Files %28x86%29\boost\boost_1_57_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>true</BrowseInformation>
+      <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -84,6 +85,7 @@
   <ItemGroup>
     <ClCompile Include="Instruction.cpp" />
     <ClCompile Include="parser.cpp" />
+    <ClCompile Include="sourcefile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assembly.asm" />
@@ -91,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Instruction.h" />
+    <ClInclude Include="sourcefile.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="bin.txt" />
