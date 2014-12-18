@@ -38,12 +38,11 @@ public:
 
 	//for testing
 #ifdef _DEBUG
-	Instruction(void);
 	Instruction(unsigned long l);
 	Instruction(const string& str);
 	Instruction(const bitset<32>& allinstr);
 #endif
-	
+	Instruction(void);
 	//end for testing
 
 	Instruction(int opcode_int_par, const string & instr_str_par);

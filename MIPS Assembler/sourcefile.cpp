@@ -136,7 +136,7 @@ bool SourceFile::save_output()
 		for (unsigned int i = 0; i<instr_list.size(); i++)
 		{
 
-			object << instr_list[i]->str_bin_32();
+			object << instr_list[i]->str_hex_32();
 		}
 		break;
 	default:

@@ -5,14 +5,14 @@ int main()
 	char outputmode;
 	string src_file, obj_file;
 	cout << "MIPS Assembler\n";
-	/*
-	cout << "Enter the source file name";
+	
+	cout << "Enter the source file name : ";
 	cin >> src_file;
-	cout << "Enter the object file name";
+	cout << "Enter the object file name : ";
 	cin >> obj_file;
 	SourceFile src(src_file, obj_file);
-	*/
-	SourceFile src("assembly.asm", "bin.txt");
+	
+	//SourceFile src("assembly.asm", "bin.txt");
 
 	
 		cout << "output modes:\n"

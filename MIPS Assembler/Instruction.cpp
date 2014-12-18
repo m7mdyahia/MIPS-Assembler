@@ -29,12 +29,13 @@ Instruction::Instruction(const string& str)
 Instruction::Instruction(int opcode_int_par, const string & instr_str_par) :instr_str(instr_str_par), op(opcode_int_par)
 {
 }
+
+#endif
 Instruction::Instruction()
 {
 	op = 0;
 
 }
-#endif
 
 //output methods
 
@@ -77,7 +78,7 @@ string Instruction::str_hex() const
 string Instruction::str_bin_32() const
 {
 	bitset<32> binstr(instr_value);
-	return binstr.to_string();
+	return binstr.to_string()+"\n";
 
 }
 
@@ -89,7 +90,7 @@ string Instruction::str_hex_32() const
 	ss.fill('0');
 	ss << hex << instr_value;
 	
-	return ss.str();;
+	return ss.str() + "\n";
 
 }
 
@@ -288,6 +289,7 @@ IInstr::IInstr(int opcode_int_par, const string & instr_str_par,  SourceFile * c
 
 JInstr::JInstr(int opcode_int_par, const string & instr_str_par,  SourceFile * caller)
 {
+	op = opcode_int_par;
 	signed int address = 0;
 	string  label_str;
 	stringstream ss(instr_str_par);
