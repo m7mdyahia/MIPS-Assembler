@@ -2,30 +2,50 @@
 
 int main()
 {
+	cout << "MIPS Assembler\n";
 	char outputmode;
 	string src_file, obj_file;
-	cout << "MIPS Assembler\n";
-	
+
+	/*
 	cout << "Enter the source file name : ";
+
 	cin >> src_file;
+	
 	cout << "Enter the object file name : ";
+
 	cin >> obj_file;
-	SourceFile src(src_file, obj_file);
-	
-	//SourceFile src("assembly.asm", "bin.txt");
+			
+	*/
+	cout << "Assembling the file ...\n";
+	try
+	{
+		SourceFile src("assembly.asm", "bin.txt");
+		cout << "Finished Assembling the file choose the ";
 
-	
-		cout << "output modes:\n"
-		<< "0:Binary 8 bits per line\n"
-		<< "1:Hexadicimal 8 bits per line\n"
-		<< "2:Binary 32 bits per line\n"
-		<< "3:Hexadicimal 32 bits per line\n";
-		
+		cout << endl << "output modes:\n"
+			<< "0:Binary 8 bits per line\n"
+			<< "1:Hexadicimal 8 bits per line\n"
+			<< "2:Binary 32 bits per line\n"
+			<< "3:Hexadicimal 32 bits per line\n";
 
+		bool c;
 		do
 		{
 			cin >> outputmode;
-		} while (!(src.save_output(outputmode)));
+			c = src.save_output(outputmode);
+			if (!c) cout << "invalid output mode\nre-enter the output mode\n";
+
+		} while (!c);
+
+		cout << "successfully saved\n";
+
+	}
+
+	catch (...)
+	{
+
+	}
+
+
 		
-	
 }

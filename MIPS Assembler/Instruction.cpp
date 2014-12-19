@@ -140,7 +140,7 @@ RInstr::RInstr(const string & fn_str_par, const string & instr_str_par, SourceFi
 	op = 0;
 	resolved = true;
 	unsigned int rs=0, rt=0, rd=0, shamt=0, fn=0;
-	string opcode_, r1, r2, r3;
+	string opcode_, r1, r2, r3,sh;
 
 	stringstream ss(instr_str_par);
 	//ss >> opcode_;
@@ -166,7 +166,7 @@ RInstr::RInstr(const string & fn_str_par, const string & instr_str_par, SourceFi
 					 getline(ss, r1, ',');
 					 getline(ss, r2, ',');
 					 getline(ss, r3);
-					 rs = register_number(r1); rt = register_number(r2); rd = register_number(r3);
+					 rs = register_number(r2); rt = register_number(r3); rd = register_number(r1);
 					 break;
 		}
 
@@ -179,12 +179,12 @@ RInstr::RInstr(const string & fn_str_par, const string & instr_str_par, SourceFi
 
 			getline(ss, r1, ',');
 			getline(ss, r2, ',');
-
-			rs = 0; rt = register_number(r2); rd = register_number(r3); ss >> shamt;
+			getline(ss, sh);
+			rs = 0; rt = register_number(r2); rd = register_number(r3); shamt = static_cast<int>(stoul(sh, 0, 0)) & 0x1F;
 			break;
 			//one register //jr
 		case 0x08:
-			ss >> r1;
+			getline(ss, r1);
 			rs = register_number(r1);
 
 			break;
